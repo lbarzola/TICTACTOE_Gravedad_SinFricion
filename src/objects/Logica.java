@@ -16,6 +16,7 @@ public class Logica {
     public int[] a; //numero de fichas en una columna
     public int m;
     public int n;
+    public int k;
 
     public Logica(int m, int n, boolean t) {
         this.T = new int[m][n];
@@ -27,6 +28,7 @@ public class Logica {
 
     //------------------INFORMA SI SE LLEGO AL ESTADO META O NO-------------------------------
     
+    //OJO con esto, que pasa si en la ultima jugada alguien gana
     public boolean hayEmpate(){
         if (f == m*n) {
             return true;
@@ -46,15 +48,16 @@ public class Logica {
         boolean senal = false;
 
         //identifica si evaluara para player 1 o player 2
+        //Player 1->1, Player 2->-1 y casilla vacia->0  OK?
         if (t) {
             valor = 1;
         } else {
-            valor = 0;
+            valor = -1;
         }
         //*****verifica en el eje Vertical*********
         //Verifica arriba
-        while ((y - i) > 0 && !senal) {
-            if (T[x][y - i] == valor) {
+        while (i < k && (x - i) >= 0 && !senal) {
+            if (T[x-1][y] == valor) {
                 verificar_vertical++;
             } else {
                 senal = true;
@@ -65,8 +68,8 @@ public class Logica {
         //Verifica abajo
         senal = false;
         i = 0;
-        while ((y + i) < m && !senal) {
-            if (T[x][y + (i + 1)] == valor) {
+        while (i < k && (x + i) < m && !senal) {
+            if (T[x+1][y] == valor) {
                 verificar_vertical++;
             } else {
                 senal = true;
@@ -80,8 +83,8 @@ public class Logica {
         //Verifica derecha
         i = 0;
         senal = false;
-        while ((x + i) < n && !senal) {
-            if (T[x + i][y] == valor) {
+        while (i < k && (y + i) < n && !senal) {
+            if (T[x][y+1] == valor) {
                 verificar_horizontal++;
             } else {
                 senal = true;
@@ -92,8 +95,8 @@ public class Logica {
         //Verifica izquierda
         i = 0;
         senal = false;
-        while (i < k && (x - i) > 0) {
-            if (T[x - i][y] == valor) {
+        while (i < k && (y - i) >= 0 && !senal) {
+            if (T[x][y-1] == valor) {
                 verificar_horizontal++;
             } else {
                 senal = true;
@@ -102,12 +105,12 @@ public class Logica {
         }
         //***********************************************************
 
-        //Verifica en la Diagonal 1**************************************
+        //Verifica en la Diagonal 1  NO-SE**************************************
 
         i = 0;
         senal = false;
-        while ((x - i) > 0 && (y - i) > 0 && !senal) {
-            if (T[x - i][y - i] == valor) {
+        while (i < k && (x - i) >= 0 && (y - i) >= 0 && !senal) {
+            if (T[x -i][y -i] == valor) {
                 verificar_diagonal1++;
             } else {
                 senal = true;
@@ -117,8 +120,8 @@ public class Logica {
 
         i = 0;
         senal = false;
-        while ((x + i) < n && (y + i) < m && !senal) {
-            if (T[x + (i + 1)][y + (i + 1)] == valor) {
+        while (i < k && (x + i) < n && (y + i) < m && !senal) {
+            if (T[x + i][y + i] == valor) {
                 verificar_diagonal1++;
             } else {
                 senal = true;
@@ -128,11 +131,11 @@ public class Logica {
 
         //***************************************************************
 
-        //Verifica en la Diagonal 2**************************************
+        //Verifica en la Diagonal 2 NE-SO**************************************
         i = 0;
         senal = false;
-        while ((x + i) < n && (y - i) > 0 && !senal) {
-            if (T[x + i][y - i] == valor) {
+        while (i < k && (x - i) < n && (y + i) >= 0 && !senal) {
+            if (T[x - i][y + i] == valor) {
                 verificar_diagonal1++;
             } else {
                 senal = true;
@@ -142,8 +145,8 @@ public class Logica {
 
         i = 0;
         senal = false;
-        while ((x - i) > 0 && (y + i) < m && !senal) {
-            if (T[x - i][y + i] == valor) {
+        while (i < k && (x + i) >= 0 && (y - i) < m && !senal) {
+            if (T[x + i][y - i] == valor) {
                 verificar_diagonal1++;
             } else {
                 senal = true;
@@ -160,6 +163,7 @@ public class Logica {
         }
     }
 
+    
     //----------------------SE GENERA EL NUEVO ESTADO---------------------
     public void nuevoEstado(int columna, boolean turno) {
         //True f1, false f2
@@ -170,6 +174,7 @@ public class Logica {
             } else {
                 colocar(columna, false);
             }
+            
         } //Si columna esta llena
         else {
             //Mensaje?
@@ -185,16 +190,17 @@ public class Logica {
             return true;
         }
     }
-
+    
+    //La variable columna se debe pasar como parametro en 'formato java'
     public void colocar(int columna, boolean turno) {
         boolean turnoColocar = turno;
         if (a[columna] == 1) {
             if (a[columna + 1] == 0) {
-                T[m - 1][columna + 1] = T[m - 1][columna];
+                T[m - 2][columna + 1] = T[m - 2][columna];
                 a[columna + 1] = 1;
             }
             if (a[columna - 1] == 0) {
-                T[m - 1][columna - 1] = T[m - 1][columna];
+                T[m - 2][columna - 1] = T[m - 2][columna];
                 a[columna - 1] = 1;
             }
         } else {
@@ -205,5 +211,6 @@ public class Logica {
 
         t = !turnoColocar;
         f++;
+        hayGanador((m-1) - a[columna], columna, 4);
     }
 }
