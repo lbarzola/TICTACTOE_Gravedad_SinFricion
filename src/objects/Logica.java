@@ -193,7 +193,13 @@ public class Logica {
     
     //La variable columna se debe pasar como parametro en 'formato java'
     public void colocar(int columna, boolean turno) {
-        boolean turnoColocar = turno;
+        //boolean turnoColocar = turno;
+        
+        int valorC=0;
+        if(turno)
+            valorC=1;
+        else
+            valorC=-1;
         if (a[columna] == 1) {
             if (a[columna + 1] == 0) {
                 T[m - 2][columna + 1] = T[m - 2][columna];
@@ -204,12 +210,12 @@ public class Logica {
                 a[columna - 1] = 1;
             }
         } else {
-            T[(m-1) - a[columna]][columna] = 1;
+            T[(m-1) - a[columna]][columna] =valorC;
             a[columna]++;
 
         }
 
-        t = !turnoColocar;
+        t = !turno;
         f++;
         hayGanador((m-1) - a[columna], columna, 4);
     }
